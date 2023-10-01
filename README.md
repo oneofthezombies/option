@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Go Option package provides an implementation of the `Option` type similar to Rust's `Option`. It allows you to represent optional values and handle them in a safe and expressive way, avoiding the need for explicit null checks.
+The Go Option package provides an implementation of the `Option` type similar to Rust's `Option`.  
+It allows you to represent optional values and handle them in a safe and expressive way, avoiding the need for explicit null checks.  
+And This is written as `go-way`.
 
 ## Usage
 
@@ -24,85 +26,54 @@ someOption := option.Some(value)
 noneOption := option.None()
 ```
 
-### Checking if a Value is Present
+### Checking if a Value is Present and Extracting the Value
 
-You can use the Has method to check if an Option contains a value:
-
-```go
-if someOption.Has() {
-    fmt.Println("SomeOption has a value:", someOption.Value())
-} else {
-    fmt.Println("SomeOption is None")
-}
-
-if noneOption.Has() {
-    fmt.Println("NoneOption has a value:", noneOption.Value())
-} else {
-    fmt.Println("NoneOption is None")
-}
-```
-
-### Retrieving the Value
-
-To extract the value from an Option, you can use the Value method. However, make sure to check if a value is present using Has before calling Value to avoid panics:
+You can use the Value method to check if a value is present in an Option. It returns a boolean indicating whether a value is present or not:
 
 ```go
-if someOption.Has() {
-    value := someOption.Value()
-    fmt.Println("SomeOption value:", value)
-} else {
-    fmt.Println("SomeOption is None")
+// option_test.go
+func TestSome(t *testing.T) {
+	o := Some(1)
+	v, ok := o.Value()
+	if !ok {
+		t.Error("expected option to have value")
+	}
+
+	if v != 1 {
+		t.Error("expected option value to be 1")
+	}
 }
 ```
-
-### Panics
-
-If you attempt to access the value of a None option without checking first, it will panic:
-
-```go
-// This will panic if noneOption is None
-value := noneOption.Value()
-```
-
-To avoid panics, always use Has to check the presence of a value before calling Value.
 
 ## Examples
 
 Here are some basic examples of using the option package:
 
 ```go
-package main
+func TestAll(t *testing.T) {
+	o := Some("foo")
+	v, ok := o.Value()
+	if !ok {
+		t.Error("expected option to have value")
+	}
 
-import (
-    "fmt"
-    "github.com/oneofthezombies/option"
-)
+	if v != "foo" {
+		t.Error("expected option value to be foo")
+	}
 
-func main() {
-    // Creating Some and None options
-    someOption := option.Some(42)
-    noneOption := option.None()
+	o = None[string]()
+	v, ok = o.Value()
+	if ok {
+		t.Error("expected option to not have value")
+	}
 
-    // Checking if a value is present
-    if someOption.Has() {
-        fmt.Println("SomeOption has a value:", someOption.Value())
-    } else {
-        fmt.Println("SomeOption is None")
-    }
-
-    if noneOption.Has() {
-        fmt.Println("NoneOption has a value:", noneOption.Value())
-    } else {
-        fmt.Println("NoneOption is None")
-    }
-
-    // Accessing values safely
-    if noneOption.Has() {
-        value := noneOption.Value()
-        fmt.Println("NoneOption value:", value)
-    } else {
-        fmt.Println("NoneOption is None")
-    }
+	// If None is asigned then the value is the "zero value" of the type. In this case, the zero value of string is an empty string.
+	// But you don't have to worry about value because we deal with cases where ok is false.
+	// If value type is a struct, then the zero value is an empty struct.
+	// And if value type is a pointer, then the zero value is nil.
+	if v != "" {
+		t.Error("expected option value to be empty string")
+	}
 }
 ```
 
