@@ -1,4 +1,4 @@
-# Go Option Package
+# Option for Go
 
 ## Overview
 
